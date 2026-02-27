@@ -47,6 +47,7 @@
             * Dev: [claude-sonnet-4.6]
             * Sec: [claude-opus-4.6]
             * Arch: [claude-sonnet-4.6]
+            * Code-Reviewer: [gpt-5.3-Codex]
         </phase_0_assignment>
 
         <phase_1_analysis>
@@ -77,6 +78,7 @@
             | PM | [Pass/Fail] | ... |
             | Sec | [Pass/Fail] | ... |
             | Arch | [Pass/Fail] | ... |
+            | Code-Reviewer | [Pass/Fail] | ... |
         </phase_4_committee_review>
 
     <project_requirements>
