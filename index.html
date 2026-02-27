@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>INI Diff Tool</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       TOP BAR
+  ════════════════════════════════════════════════════════════ -->
+  <header id="topbar">
+    <div id="appTitle">
+      <span class="app-icon">⇄</span>
+      <span>INI Diff Tool</span>
+    </div>
+
+    <div id="dropzones">
+      <!-- LEFT FILE -->
+      <div class="dropzone-wrapper" id="dz-left-wrapper">
+        <div class="dropzone" id="dz-left" data-side="left">
+          <span class="dz-icon">📄</span>
+          <span class="dz-label">LEFT FILE</span>
+          <span class="dz-hint">Drag &amp; drop or</span>
+          <label class="btn-choose">
+            Choose File
+            <input type="file" id="file-left" accept=".ini,.cfg,.conf,.txt" hidden />
+          </label>
+        </div>
+        <div class="dz-meta" id="meta-left">
+          <span class="dz-filename" id="filename-left">No file loaded</span>
+          <span class="dz-modified" id="modified-left"></span>
+          <span class="dz-watch" id="watch-left" title="Auto-refresh active" hidden>↻ Watching</span>
+        </div>
+      </div>
+
+      <!-- SWAP BUTTON -->
+      <button id="btn-swap" title="Swap left and right files">⇅</button>
+
+      <!-- RIGHT FILE -->
+      <div class="dropzone-wrapper" id="dz-right-wrapper">
+        <div class="dropzone" id="dz-right" data-side="right">
+          <span class="dz-icon">📄</span>
+          <span class="dz-label">RIGHT FILE</span>
+          <span class="dz-hint">Drag &amp; drop or</span>
+          <label class="btn-choose">
+            Choose File
+            <input type="file" id="file-right" accept=".ini,.cfg,.conf,.txt" hidden />
+          </label>
+        </div>
+        <div class="dz-meta" id="meta-right">
+          <span class="dz-filename" id="filename-right">No file loaded</span>
+          <span class="dz-modified" id="modified-right"></span>
+          <span class="dz-watch" id="watch-right" title="Auto-refresh active" hidden>↻ Watching</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="topbar-actions">
+      <button id="btn-compare" class="btn-primary" disabled>Compare</button>
+      <button id="btn-clear" class="btn-secondary">Clear</button>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MAIN AREA  (sidebar + diff panes)
+  ════════════════════════════════════════════════════════════ -->
+  <div id="main">
+
+    <!-- ── LEFT SIDEBAR – SECTIONS ── -->
+    <aside id="sidebar">
+      <div id="sidebar-header">
+        <span id="sidebar-title">Sections</span>
+        <label id="select-all-label" title="Select / deselect all sections">
+          <input type="checkbox" id="chk-select-all" checked />
+          All
+        </label>
+      </div>
+
+      <div id="sidebar-search-wrap">
+        <input type="search" id="section-search" placeholder="🔍 Search sections…" />
+      </div>
+
+      <div id="section-list">
+        <!-- Section items injected by app.js -->
+        <div id="section-list-empty" class="section-empty">
+          Load two files to see sections
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── DIFF PANES ── -->
+    <div id="diff-area">
+
+      <!-- PANE HEADERS -->
+      <div id="pane-headers">
+        <div class="pane-header" id="header-left">
+          <span id="pane-title-left">Left File</span>
+          <span class="pane-header-counts" id="counts-left"></span>
+        </div>
+        <div id="gutter-header"></div>
+        <div class="pane-header" id="header-right">
+          <span id="pane-title-right">Right File</span>
+          <span class="pane-header-counts" id="counts-right"></span>
+        </div>
+      </div>
+
+      <!-- SCROLL WRAPPER (left pane + gutter + right pane) -->
+      <div id="panes-scroll-wrapper">
+
+        <!-- LEFT PANE -->
+        <div class="diff-pane" id="pane-left">
+          <div class="diff-content" id="content-left">
+            <div class="diff-placeholder">←  No file loaded</div>
+          </div>
+        </div>
+
+        <!-- GUTTER (SVG connector lines drawn here) -->
+        <div id="gutter">
+          <svg id="gutter-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+        </div>
+
+        <!-- RIGHT PANE -->
+        <div class="diff-pane" id="pane-right">
+          <div class="diff-content" id="content-right">
+            <div class="diff-placeholder">→  No file loaded</div>
+          </div>
+        </div>
+
+      </div><!-- /panes-scroll-wrapper -->
+    </div><!-- /diff-area -->
+
+  </div><!-- /main -->
+
+  <!-- ═══════════════════════════════════════════════════════════
+       STATUS BAR
+  ════════════════════════════════════════════════════════════ -->
+  <footer id="statusbar">
+    <span id="status-text">Ready</span>
+    <span class="status-sep">|</span>
+    <span id="status-stats"></span>
+    <span class="status-fill"></span>
+    <span id="status-lines-left"></span>
+    <span class="status-sep" id="status-sep2" hidden>|</span>
+    <span id="status-lines-right"></span>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       LOADING OVERLAY
+  ════════════════════════════════════════════════════════════ -->
+  <div id="loading-overlay" hidden>
+    <div id="loading-box">
+      <div class="spinner"></div>
+      <div id="loading-msg">Parsing…</div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SCRIPTS  (workers created inline in app.js)
+  ════════════════════════════════════════════════════════════ -->
+  <script src="app.js"></script>
+
+</body>
+</html>
